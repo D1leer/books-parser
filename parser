@@ -1,0 +1,22 @@
+import requests
+from bs4 import BeautifulSoup
+
+url = 'http://books.toscrape.com/catalogue/page-1.html'
+response = requests.get(url)
+
+content = response.content.decode('windows-1252')
+soup = BeautifulSoup(content, 'html.parser')
+books = soup.find_all('article', class_='product_pod')
+first_book = books[0]
+title = first_book.find('h3').find('a')['title']
+availability = first_book.find('p', class_='instock availability').text.strip()
+prise = first_book.find('p', class_='price_color').text
+prise = prise.replace('Â', ' ')
+
+print(f'статус ответа: {response.status_code}')
+print(f'длина HTML-кодa: {len(response.text)}')
+print(f'найденно книг: {len(books)}')
+print(f'название: {title}')
+print(f'цена: {prise}')
+print(f'наличие: {availability}')
+print(response.encoding)
