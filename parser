@@ -1,22 +1,32 @@
 import requests
+import csv
+import os
 from bs4 import BeautifulSoup
 
-url = 'http://books.toscrape.com/catalogue/page-1.html'
-response = requests.get(url)
+with open('qnotes.csv', 'w', newline='', encoding='utf-8') as f:
+    writer = csv.writer(f)
+    writer.writerow(['название', 'наличие', 'цена'])
 
-content = response.content.decode('windows-1252')
-soup = BeautifulSoup(content, 'html.parser')
-books = soup.find_all('article', class_='product_pod')
-first_book = books[0]
-title = first_book.find('h3').find('a')['title']
-availability = first_book.find('p', class_='instock availability').text.strip()
-prise = first_book.find('p', class_='price_color').text
-prise = prise.replace('Â', ' ')
+    url = 'http://books.toscrape.com/catalogue/page-1.html'
+    response = requests.get(url)
 
-print(f'статус ответа: {response.status_code}')
-print(f'длина HTML-кодa: {len(response.text)}')
-print(f'найденно книг: {len(books)}')
-print(f'название: {title}')
-print(f'цена: {prise}')
-print(f'наличие: {availability}')
-print(response.encoding)
+    if response.status_code == 200:
+        content = response.content.decode('windows-1252')
+        soup = BeautifulSoup(content, 'html.parser')
+        books = soup.find_all('article', class_='product_pod')
+  
+        for book in books:
+          title = book.find('h3').find('a')['title']
+          availability = book.find('p', class_='instock availability').text.strip()
+          prise = book.find('p', class_='price_color').text
+          prise = prise.replace('Â', ' ')
+          print(title)
+          print(availability)
+          print(prise)
+
+          writer.writerow([title, availability, prise])
+    else:
+        print('ошибка загрузки сайта')
+
+print('end')
+print(os.getcwd())
